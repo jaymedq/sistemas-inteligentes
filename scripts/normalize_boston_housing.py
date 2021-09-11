@@ -23,7 +23,8 @@ Original file is located at
 import pandas
 
 # 1 - Preparar a base (localizada na pasta /conntent)
-data = pandas.read_csv("./content/BostonHousing.csv",sep=';')
+path = os.path.join(os.getcwd(),'database','BostonHousing.csv')
+data = pandas.read_csv(path,sep=';')
 
 # 1.1 -Separar os dados numericos dos dados categoricos
 num_data = data
