@@ -93,9 +93,24 @@ nk_inertias = optimal_cluster_number(inertias)
 # COM BASE NO NUMERO IDEAL DE GRUPOS CALCULADO ANTERIORMENTE
 kmeansmodel = KMeans(n_clusters=nk_inertias, random_state=4).fit(data_x)
 #Salvar o modelo para uso posterior
-print('centroides obtidos')
-print(kmeansmodel.cluster_centers_)
+# print('centroides obtidos')
+# print(kmeansmodel.cluster_centers_)
 
 
-with open("models/kmeansmodel_fertility.pkl", "wb") as f:
-    pickle.dump(kmeansmodel, f)
+with open("models/kmeansmodel_fertility.pkl", "wb") as kmeansmodel_file:
+    pickle.dump(kmeansmodel, kmeansmodel_file)
+
+#########################
+#UTILIZAR O MODELO PERSISTIDO PARA INFERIR SOBRE UMA NOVA INSTANCIA
+# Abrir o modelo salvo em disco
+with open("models/kmeansmodel_fertility.pkl", 'rb') as kmeansmodel_file:
+    fertility_kmeans_model = pickle.load(kmeansmodel_file)
+new_patient = [[1,0.67,1,0,0,0,1,-1,0.25]] # Estes dados foram normalizados com o mdesmo modelo normalizador utilizado sobre a base
+print('number of clusters that the new patient may be')
+print(
+    fertility_kmeans_model.predict(new_patient)
+)
+print('cluster center that the new patient may be')
+print(
+    fertility_kmeans_model.cluster_centers_[fertility_kmeans_model.predict(new_patient)]
+)
