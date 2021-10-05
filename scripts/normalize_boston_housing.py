@@ -56,9 +56,14 @@ data_normalizer_model = normalizer.fit(std_data)
 
 from pickle import dump
 dump(data_normalizer_model, open('data_normalizer_model.pkl', 'wb'))
+close('data_normalizer_model.pkl')
 
 # 4.2 Normalizar a base de entrada com o modelo normalizador obtido
 normalized_data = data_normalizer_model.fit_transform(num_data)
+
+# 5 Normalizar dados categoricos
+# cat_normalized_data = pandas.get_dummies(cat_data, prefix = cat_data.name)
+# print(cat_normalized_data)
 
 #Incorporar os dados normalizados em um unico objeto
 #converter o ndarray em data frame

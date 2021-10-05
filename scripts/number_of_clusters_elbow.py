@@ -11,16 +11,16 @@ from scipy.spatial.distance import cdist
 from sklearn.cluster import KMeans
 import subprocess
 # 1 Abrir os dados
-path = os.path.join(os.getcwd(),'database','fertility-Diagnosis.csv')
+path = os.path.join(os.getcwd(),'database','Normalized-Fertility-Diagnosis.csv')
 data = pandas.read_csv(path)
 
 # imprimir as colunas do arquivo
 #print(data.columns)
 
 # Separar os atributos da classe
-data_x = data.drop(columns=['Output'])
+# data_x = data.drop(columns=['Output'])
 # Coverter os dados em uma matriz numerica (nd_array)
-data_x = data_x.values
+data_x = data.values
 #print(type(data_x))
 
 #preparar um objeto para a plotagem do grafico das distorcoes
@@ -86,8 +86,8 @@ nk_distortions = optimal_cluster_number(distortions)
 #print(f'numero ideal de clusters: distortions [ {nk_distortions} ]')
 #print(nk_distortions)
 nk_inertias = optimal_cluster_number(inertias)
-#print(f'numero ideal de clusters: inertias [ {nk_inertias} ]')
-#print(nk_inertias)
+print(f'numero ideal de clusters: inertias [ {nk_inertias} ]')
+print(nk_inertias)
 
 # OBTER E SALVAR O MODELO DE CLUSTERS 
 # COM BASE NO NUMERO IDEAL DE GRUPOS CALCULADO ANTERIORMENTE
