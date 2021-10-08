@@ -7,9 +7,10 @@ import numpy
 import math
 import pandas
 import pickle
+from pandas.core.frame import DataFrame
 from scipy.spatial.distance import cdist
-from sklearn import cluster
 from sklearn.cluster import KMeans
+from sklearn.mixture import GaussianMixture
 
 import os
 import pandas
@@ -35,7 +36,7 @@ def optimal_cluster_number(mapping):
         distances.append(numerator/denominator)
     return distances.index(max(distances))+2
 
-def normalizar(data):
+def normalizar(data:DataFrame):
     #------------------- Normalizacao -----------------------------------------
     data.info()
     #Aplicar One Hot encoding na coluna reason for absence
@@ -46,13 +47,13 @@ def normalizar(data):
     #########################
     from sklearn import preprocessing
 
-    # normalizer = preprocessing.MinMaxScaler()
-    # data_normalizer_model = normalizer.fit(num_data.values)
-    # normalized_data = data_normalizer_model.fit_transform(num_data)
-    # normalized_data = pandas.DataFrame(normalized_data,columns = num_data.columns.values)
-    normalized_data = num_data.join(data_dummies,how='left')
+    normalizer = preprocessing.MinMaxScaler()
+    data_normalizer_model = normalizer.fit(num_data.values)
+    normalized_data_array = data_normalizer_model.fit_transform(num_data)
+    normalized_data_frame = pandas.DataFrame(normalized_data_array,columns = num_data.columns)
+    normalized_data = normalized_data_frame.join(data_dummies,how='left')
     #########################
-    print('\n_______\n')
+    print('\n___Normalizado____\n')
     print(normalized_data)
     normalized_data.to_csv(normalized_absenteeism_path,sep=',',encoding='utf-8')
     return normalized_data
@@ -66,7 +67,6 @@ def clusterizar(norm_data):
     for k in sampleRange:
         kmeansmodel = KMeans(n_clusters=k, random_state=4).fit(data_x)
         inertias.append(kmeansmodel.inertia_)
-    
     nk_inertias = optimal_cluster_number(inertias)
     print(f'ideal number of clusters: inertias [ {nk_inertias} ]')
     kmeansmodel = KMeans(n_clusters=nk_inertias, random_state=4).fit(data_x)
@@ -81,28 +81,15 @@ def main():
     #------------------- Abrir arquivo de dados -------------------------------
     data = pandas.read_csv(absenteeism_path,delimiter=';')
     print(data)
+    # data_y = data[['Absenteeism time in hours']]
+    # data_x = data.drop(labels='Absenteeism time in hours',axis=1)
     norm_data = normalizar(data)
-    norm_data_y = norm_data['Absenteeism time in hours']
-    norm_data_x = norm_data.drop(labels='Absenteeism time in hours',axis=1)
-
-    #------------------- Inferencia - Interface -----------------------------
-    cluster_model = clusterizar(norm_data)
-    print('centroides obtidos')
-    print(cluster_model.cluster_centers_)
-
-    #NOVA INSTANCIA
-    new_patient = [[12,3,2,155,12,14,34,280.54900000000004,98,0,1,2,1,0,0,95,196,25,80,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0]]
-    print(f'new patient input:{new_patient}')
-
-    print('index of the clusters that the new patient may be')
-    print(
-        cluster_model.predict(new_patient)
-    )
-    print('\ncluster center that the new patient may be:\n')
-    cluster_center = cluster_model.cluster_centers_[cluster_model.predict(new_patient)]
-    print(cluster_center)
-    print(len(cluster_center[0]))
-    print(len(new_patient[0]))
-    print(len(norm_data.columns.values))
+    modelo = clusterizar(norm_data)
+    new_input = [[0.5833333333333333,0.25,0.0,0.4074074074074074,0.19148936170212766,0.5357142857142857,0.9999999999999999,0.3392959350627578,0.6315789473684212,0.0,0.0,0.5,0.0,0.0,0.125,0.1730769230769229,0.2727272727272725,0.1578947368421053,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]
+    pred = modelo.predict(new_input)
+    print(f'indice do cluster encaixado: {pred}')
+    match_centroide=modelo.cluster_centers_[pred]
+    print(match_centroide)
+    print(f'horas previstas para faltar: {match_centroide[0][18]*120}')
 if __name__ == '__main__':
     main()

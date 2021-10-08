@@ -21,6 +21,7 @@ Original file is located at
 """
 
 import pandas
+import os
 
 # 1 - Preparar a base (localizada na pasta /conntent)
 path = os.path.join(os.getcwd(),'database','BostonHousing.csv')
